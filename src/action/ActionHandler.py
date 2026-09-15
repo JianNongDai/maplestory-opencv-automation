@@ -102,8 +102,16 @@ class ActionHandler:
             elif direction == "RIGHT":
                 self.keyboard.jump_right()
 
-            elif direction =="None":  # <- 給平台移動時遇到障礙物的跳躍
+            elif direction =="NONE":  # <- 給平台移動時遇到障礙物的跳躍
                 self.keyboard.enable_jump()
+
+        # 小程度的位移指令
+        elif self.current_state == "SMALL_MOVE":
+            direction = self.current_info.get("direction")
+            if direction == "M2LEFT":
+                self.keyboard.move_left_to_jump()# <- 跳抓狀態的短距離左側移動
+            elif direction == "M2RIGHT":
+                self.keyboard.move_right_to_jump()# <- 跳抓狀態的短距離右側移動
 
         elif self.current_state == "JUMP_GRAB":
             direction = self.current_info.get("direction")

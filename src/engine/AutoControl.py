@@ -157,9 +157,9 @@ class AutoControl:
             "JumpRight": "RIGHT",
             "JumpDown":"DOWN",
             "JumpUp":"UP",
-            "M_LEFT": "M_LEFT",
-            "M_RIGHT": "M_RIGHT",
-            "Jump": "None"
+            "M_LEFT": "M2LEFT",
+            "M_RIGHT": "M2RIGHT",
+            "Jump": "NONE"
         }
 
         jump_points = []
@@ -171,6 +171,7 @@ class AutoControl:
             x, y = item["loc"]
             jump_points.append({"loc": (x, y), "direction": direction})
         print(f"跳躍點數量：{len(jump_points)}")
+        print("跳躍點",jump_points)
         return jump_points
     #=================
     # 主要邏輯
@@ -443,10 +444,14 @@ class AutoControl:
         for index, point in enumerate(self.jump_points):
             jx, jy = point["loc"]
 
-            if abs(jx - px) <= 2 and abs(jy - py) <= 2.5:  # 遊戲有不可控的像素誤差
+            if abs(jx - px) <= 2.5 and abs(jy - py) <= 2:  # 遊戲有不可控的像素誤差
                 direction = self.jump_points[index]["direction"]
+                print(f"跳躍點方向:{direction}")
+                if direction == "NONE":
+                    return self._pack_action("JUMP", direction=direction)
+                elif direction == "M2LEFT" or direction == "M2RIGHT":
+                    return self._pack_action("SMALL_MOVE", direction=direction)
 
-                return self._pack_action("JUMP", direction=direction)
 
         my_verti_passage = self._check_vertical_passage()
         # (1) 防卡:防止被怪物攻擊而阻斷移動狀態，發一個"閒置停止"的指令，觸發脈衝
@@ -488,7 +493,7 @@ class AutoControl:
             jx, jy = point["loc"]
             if abs(px - jx) <= threshold and abs(py - jy) <= threshold:
                 return index
-
+        
         return None
 
     def _find_nearest_jump_point(self) -> Optional[int]:
@@ -592,10 +597,13 @@ class AutoControl:
         for index, point in enumerate(self.jump_points):
             jx, jy = point["loc"]
 
-            if abs(jx - px) <= 2 and abs(jy - py) <= 2.5:  # 遊戲有不可控的2像素誤差
+            if abs(jx - px) <= 2.5 and abs(jy - py) <= 2:  # 遊戲有不可控的2像素誤差
                 direction = self.jump_points[index]["direction"]
-
-                return self._pack_action("JUMP", direction=direction)
+                print(f"跳躍點方向:{direction}")
+                if direction == "NONE":
+                    return self._pack_action("JUMP", direction=direction)
+                elif direction == "M2LEFT" or direction == "M2RIGHT":
+                    return self._pack_action("SMALL_MOVE", direction=direction)
             
         # 條件B: 人物不再平台
         if current_plat_index is None :

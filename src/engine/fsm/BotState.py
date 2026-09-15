@@ -103,7 +103,8 @@ class PathfindState(State):
         #     print(f"偵測到鄰近的{nearest_jump_index}號跳躍點，轉換到跳躍狀態")
         #     context.change_state(JumpState(nearest_jump_index))
         #     return None, None
-        # 條件B: 偵測平台內垂直通道
+        
+        # 條件A: 偵測平台內垂直通道
         if context._check_current_platform() is not None or context._check_vertical_passage() is not None:
             print("偵測在平台內，轉到到爬繩狀態")
             context.change_state(RopeState())
