@@ -190,6 +190,7 @@ class KeyBoard:
                 self._status_jump = False
 
     def enable_jump(self,duration=0.1):
+        '''跳躍動作'''
         with self._jump_lock:
             if self._status_jump:
                 return
@@ -222,6 +223,7 @@ class KeyBoard:
                 self._status_up = False
 
     def enable_up(self,duration=0.1):
+
         with self._up_lock:
             if self._status_up:
                 return

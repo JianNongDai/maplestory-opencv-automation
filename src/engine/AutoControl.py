@@ -151,13 +151,15 @@ class AutoControl:
             解析路徑設定，拆出單點跳躍點(JumpLeft / JumpRight)。
 
         '''
+        # 對動作做方向映射
         JUMP_ACTION_DIRECTION = {
             "JumpLeft": "LEFT",
             "JumpRight": "RIGHT",
             "JumpDown":"DOWN",
             "JumpUp":"UP",
             "M_LEFT": "M_LEFT",
-            "M_RIGHT": "M_RIGHT"
+            "M_RIGHT": "M_RIGHT",
+            "Jump": "None"
         }
 
         jump_points = []
@@ -576,12 +578,25 @@ class AutoControl:
         # 若有平台，則更新最新平台(盡量別用快取)
         current_plat_index = self._check_current_platform()
 
-        if current_plat_index is None : # 過濾人物沒有在平台
+        # 條件A:判斷人物是否站在跳躍點
+
+        for index, point in enumerate(self.jump_points):
+            jx, jy = point["loc"]
+
+            if jx == px and jy == py:
+                direction = self.jump_points[index]["direction"]
+
+                return self._pack_action("JUMP", direction=direction)
+            
+        # 條件B: 人物不再平台
+        if current_plat_index is None :
             self.current_platform =  None 
             return None,None
         
+        px, py = self.mini_player_loc # 人物座標
+
+        
         self.current_platform = current_plat_index 
-        px, _ = self.mini_player_loc
 
         plat_index = self.current_platform
         current_plat = self.platforms[plat_index]

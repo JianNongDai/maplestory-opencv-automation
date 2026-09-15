@@ -11,7 +11,8 @@ class State(ABC):
 
 
 class PatrolState(State):
-
+    '''功能: 錨點狀態/巡邏狀態
+    '''
     PATROL_TIMEOUT = config.get("auto_control_config.find_mob_time_threshold") # <-- 平台巡邏超過幾秒，結束巡邏，進入下一個狀態
     STUCK_CHECK_TIMEOUT = config.get("auto_control_config.stuck_check_time_threshold")
     def __init__(self):
@@ -46,6 +47,8 @@ class PatrolState(State):
             return context._enable_player_patrol()
     
 class CombatState(State):
+    '''功能: 打怪狀態
+    '''
     STUCK_CHECK_INTERVAL = 3
 
     def __init__(self):
@@ -71,6 +74,8 @@ class CombatState(State):
 
 
 class StuckState(State):
+    '''功能: 檢查角色是否卡住了
+    '''
     STUCK_TIMEOUT = 1
     def __init__(self):
         self.stuck_timer = time.time()
