@@ -102,7 +102,7 @@ class ActionHandler:
             elif direction == "RIGHT":
                 self.keyboard.jump_right()
 
-            elif direction =="None":
+            elif direction =="None":  # <- 給平台移動時遇到障礙物的跳躍
                 self.keyboard.enable_jump()
 
         elif self.current_state == "JUMP_GRAB":

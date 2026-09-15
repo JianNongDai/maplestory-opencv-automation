@@ -443,7 +443,7 @@ class AutoControl:
         for index, point in enumerate(self.jump_points):
             jx, jy = point["loc"]
 
-            if jx == px and jy == py:
+            if abs(jx - px) <= 2 and abs(jy - py) <= 2.5:  # 遊戲有不可控的像素誤差
                 direction = self.jump_points[index]["direction"]
 
                 return self._pack_action("JUMP", direction=direction)
@@ -592,7 +592,7 @@ class AutoControl:
         for index, point in enumerate(self.jump_points):
             jx, jy = point["loc"]
 
-            if jx == px and jy == py:
+            if abs(jx - px) <= 2 and abs(jy - py) <= 2.5:  # 遊戲有不可控的2像素誤差
                 direction = self.jump_points[index]["direction"]
 
                 return self._pack_action("JUMP", direction=direction)

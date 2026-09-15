@@ -114,66 +114,66 @@ class PathfindState(State):
         return None, None
 
 
-class JumpState(State):
-    '''
-    功能:
-        負責走到指定的單點跳躍座標(YAML中紀錄的 JumpLeft / JumpRight)，
-        抵達後依紀錄的方向執行單次跳躍。
-    '''
-    TIMEOUT = 5  # <-- 第一層保險機制:太久走不到跳躍點就放棄，避免卡死在這個狀態
-    NEXT_TIMEOUT = 5 #<-- 第二層保險機制:連續跳躍判斷中的逾時時間上限
-    AIR_TIME = 1.0  # 滯空等待時間
+# class JumpState(State):
+#     '''
+#     功能:
+#         負責走到指定的單點跳躍座標(YAML中紀錄的 JumpLeft / JumpRight)，
+#         抵達後依紀錄的方向執行單次跳躍。
+#     '''
+#     TIMEOUT = 5  # <-- 第一層保險機制:太久走不到跳躍點就放棄，避免卡死在這個狀態
+#     NEXT_TIMEOUT = 5 #<-- 第二層保險機制:連續跳躍判斷中的逾時時間上限
+#     AIR_TIME = 1.0  # 滯空等待時間
 
-    def __init__(self, jump_index):
-        self.jump_index = jump_index
-        self.start_time = time.time()
-        self.last_jump_index = None
-        # Flag
-        self.next_start_jump_time = None
-        self.has_jumped = False
-    def handle(self, context, state_data):
+#     def __init__(self, jump_index):
+#         self.jump_index = jump_index
+#         self.start_time = time.time()
+#         self.last_jump_index = None
+#         # Flag
+#         self.next_start_jump_time = None
+#         self.has_jumped = False
+#     def handle(self, context, state_data):
 
-        now = time.time()
-        # 逾時保護:走太久還沒到，放棄本次跳躍，回到巡邏重新判斷
-        if now  - self.start_time > JumpState.TIMEOUT:
-            print("前往跳躍點逾時，放棄本次跳躍")
-            context.reset_state()
-            return None, None
+#         now = time.time()
+#         # 逾時保護:走太久還沒到，放棄本次跳躍，回到巡邏重新判斷
+#         if now  - self.start_time > JumpState.TIMEOUT:
+#             print("前往跳躍點逾時，放棄本次跳躍")
+#             context.reset_state()
+#             return None, None
 
-        print(f"狀態:前往{self.jump_index}號跳躍點...")
-        current_jump_index = context._check_jump_point()
+#         print(f"狀態:前往{self.jump_index}號跳躍點...")
+#         current_jump_index = context._check_jump_point()
 
-        # 情況 A：已經跳過了，檢查落下點是否還是為跳躍點
-        if self.has_jumped:
+#         # 情況 A：已經跳過了，檢查落下點是否還是為跳躍點
+#         if self.has_jumped:
             
-            if now  - self.jump_start_time > self.AIR_TIME: # <- 放了一秒，因為角色跳在空中
-                # 直接檢查現在腳下是不是跳躍點
-                new_jump_index = context._check_jump_point()
-                self.last_jump_index = new_jump_index # 紀錄上一次的跳躍點
+#             if now  - self.jump_start_time > self.AIR_TIME: # <- 放了一秒，因為角色跳在空中
+#                 # 直接檢查現在腳下是不是跳躍點
+#                 new_jump_index = context._check_jump_point()
+#                 self.last_jump_index = new_jump_index # 紀錄上一次的跳躍點
 
-                # 逾時保護:二次跳躍後的逾時保護
-                if self.next_start_jump_time is not None and (now - self.next_start_jump_time > JumpState.NEXT_TIMEOUT):
-                    print("前往跳躍點逾時，放棄本次跳躍")
-                    context.change_state(ClimbState())
-                    return None, None
+#                 # 逾時保護:二次跳躍後的逾時保護
+#                 if self.next_start_jump_time is not None and (now - self.next_start_jump_time > JumpState.NEXT_TIMEOUT):
+#                     print("前往跳躍點逾時，放棄本次跳躍")
+#                     context.change_state(ClimbState())
+#                     return None, None
                 
-                if new_jump_index is not None and self.last_jump_index != new_jump_index:
+#                 if new_jump_index is not None and self.last_jump_index != new_jump_index:
 
-                    print(f"順利落到下一個跳躍點: {new_jump_index}，繼續留在 JumpState！")
+#                     print(f"順利落到下一個跳躍點: {new_jump_index}，繼續留在 JumpState！")
 
                     
-                    # 更新目標為當前腳下的新跳躍點，重設狀態繼續下一跳
-                    self.jump_index = new_jump_index
-                    self.start_time = now 
-                    self.has_jumped = False
-                    self.next_start_jump_time = now # < - 重製時間判斷，因為跳躍點可能是多個連續的
-                    return None, None
-                else:
-                    print("落地後不在跳躍點上，連續跳躍結束，離開 JumpState")
-                    context.change_state(ClimbState())
-                    return None, None
+#                     # 更新目標為當前腳下的新跳躍點，重設狀態繼續下一跳
+#                     self.jump_index = new_jump_index
+#                     self.start_time = now 
+#                     self.has_jumped = False
+#                     self.next_start_jump_time = now # < - 重製時間判斷，因為跳躍點可能是多個連續的
+#                     return None, None
+#                 else:
+#                     print("落地後不在跳躍點上，連續跳躍結束，離開 JumpState")
+#                     context.change_state(ClimbState())
+#                     return None, None
             
-            return None, None 
+#             return None, None 
             
         # 情況 B：已經走到目標跳躍點上，執行跳躍】
         if current_jump_index == self.jump_index:
@@ -213,14 +213,14 @@ class ClimbState(State):
         # 2. 核心檢查：爬繩動作與狀態
         action, params = context._check_climbing_up()
         
-        # 3. 檢查是否已經碰到/到達新的跳躍點
-        new_jump_index = context._check_jump_point()
+        # # 3. 檢查是否已經碰到/到達新的跳躍點  JumpState 關閉
+        # new_jump_index = context._check_jump_point()
         
-        if new_jump_index is not None:
-            print(f"偵測到新跳躍點 ({new_jump_index})！切換回 JumpState 進行連續跳躍")
-            # 切換狀態到 JumpState，並帶入新的 jump_index
-            context.change_state(JumpState(new_jump_index))
-            return None, None
+        # if new_jump_index is not None:
+        #     print(f"偵測到新跳躍點 ({new_jump_index})！切換回 JumpState 進行連續跳躍")
+        #     # 切換狀態到 JumpState，並帶入新的 jump_index
+        #     context.change_state(JumpState(new_jump_index))
+        #     return None, None
 
         # 4. 判斷 IDLE 結束重置
         if action == "IDLE":
@@ -264,9 +264,9 @@ class RopeState(State):
             #到達通到盡頭，觸發IDL，重置狀態
             if action == "IDLE":
                 context.reset_state()
-                nearest_jump_index = context._find_nearest_jump_point()
-                if nearest_jump_index is not None: # < -  (測試)爬繩到盡頭，找到跳躍點
-                    context.change_state(PathfindState())
+                # nearest_jump_index = context._find_nearest_jump_point()
+                # if nearest_jump_index is not None: # < -  (測試)爬繩到盡頭，找到跳躍點
+                #     context.change_state(PathfindState())
                         
             return action, params
 

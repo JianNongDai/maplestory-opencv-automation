@@ -344,6 +344,7 @@ class KeyBoard:
                 logging.error(f"左跳動作發生錯誤:{e}")
             finally:
                 self._key_up(self.jump_key)
+                time.sleep(1)  # <- 測試 按久一點 防止被改向
                 self._release_direction_locked()   # 放開左鍵，同時同步 _current_move = None
                 time.sleep(0.2)             # 等待跳躍動作結束 
                 self._key_down(self.up_key)
@@ -372,6 +373,7 @@ class KeyBoard:
                 logging.error(f"右跳動作發生錯誤:{e}")
             finally:
                 self._key_up(self.jump_key)
+                time.sleep(1) # <- 測試 按久一點 防止被改向
                 self._release_direction_locked()   # 放開右鍵，同時同步 _current_move = None
                 time.sleep(0.2)             # 等待跳躍動作結束 
                 self._key_down(self.up_key)
@@ -381,7 +383,7 @@ class KeyBoard:
     def jump_right_grab(self, duration=0.02, delay=0.02):
 
         with self._jump_right_grab_lock:
-            self.stop_move()  #<== 停止移動（原本這裡漏掉，跟 jump_left_grab 補齊對稱）
+            self.stop_move()  #<== 停止移動
             if self._status_jump_right_grab:
                 return
             self._status_jump_right_grab = True

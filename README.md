@@ -167,6 +167,9 @@ pip install -r requirements.txt
 >[TODO -> DONE] AutoControl臃腫: 用了大量的Flag、IF判斷去控制邏輯，方向不大對，非常難維護。應該要在想個方法重構這塊；重構翻新整個狀態機。；重構AutoControl與狀態機，原本的狀態機分類為指令分配器。
 
 >[FIX] 打怪函式 _fk_that_mob：　我混用了畫面的人物座標與小地圖的人物座標做邏輯判斷，導致行為錯亂，花費好多時間才定位到這問題。
+
+>[UPDATE] 移除 JumpState 狀態機: 因為把對於跳躍點的判斷，寫進水平移動與垂直移動了，感覺可能不需要了，先拔掉測試一陣子
+
 ---
 
 ## Tools
