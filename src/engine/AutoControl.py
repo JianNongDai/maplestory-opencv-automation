@@ -438,7 +438,16 @@ class AutoControl:
         return:
             self._pack_action("MOVE", direction="RIGHT"or "LEFT")
         '''
-        px , _ = self.mini_player_loc
+
+        px, py = self.mini_player_loc # 人物座標
+        for index, point in enumerate(self.jump_points):
+            jx, jy = point["loc"]
+
+            if jx == px and jy == py:
+                direction = self.jump_points[index]["direction"]
+
+                return self._pack_action("JUMP", direction=direction)
+
         my_verti_passage = self._check_vertical_passage()
         # (1) 防卡:防止被怪物攻擊而阻斷移動狀態，發一個"閒置停止"的指令，觸發脈衝
         stuck_action =self._give_pulse_to_stuck()
@@ -579,7 +588,7 @@ class AutoControl:
         current_plat_index = self._check_current_platform()
 
         # 條件A:判斷人物是否站在跳躍點
-
+        px, py = self.mini_player_loc # 人物座標
         for index, point in enumerate(self.jump_points):
             jx, jy = point["loc"]
 
@@ -593,10 +602,7 @@ class AutoControl:
             self.current_platform =  None 
             return None,None
         
-        px, py = self.mini_player_loc # 人物座標
-
-        
-        self.current_platform = current_plat_index 
+        self.current_platform = current_plat_index  # 更新全域狀態的最新平台
 
         plat_index = self.current_platform
         current_plat = self.platforms[plat_index]
