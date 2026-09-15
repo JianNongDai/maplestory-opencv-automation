@@ -43,7 +43,7 @@ class AutoControl:
         self.recored_data = []#<-- 所有行為點的容器
         self.platforms = [] #<-- 所有平台
         self.vertical_passage = [] #<-- 所有垂直通道
-        self.jump_points = [] #<-- 所有單點跳躍點(JumpLeft/JumpRight)
+        self.action_points = [] #<-- 存放所有設定行為點
 
         #---[座標用容器]
         self.current_platform = None #<-- 當前人物所在的平台
@@ -82,9 +82,9 @@ class AutoControl:
                 # 解析平台和垂直通道
                 self.platforms = self._find_platform()
                 self.vertical_passage = self._find_vertical_passage()
-                self.jump_points = self._find_jump_points()
-                logging.info(f"{map_name}地圖載入完成，平台數量:{len(self.platforms)},垂直通道數量:{len(self.vertical_passage)},跳躍點數量:{len(self.jump_points)}")
-                print(f"{map_name}地圖載入完成\n平台數量:{len(self.platforms)}\n垂直通道數量:{len(self.vertical_passage)},跳躍點數量:{len(self.jump_points)}")
+                self.action_points = self._find_action_points()
+                logging.info(f"{map_name}地圖載入完成，平台數量:{len(self.platforms)},垂直通道數量:{len(self.vertical_passage)},跳躍點數量:{len(self.action_points)}")
+                print(f"{map_name}地圖載入完成\n平台數量:{len(self.platforms)}\n垂直通道數量:{len(self.vertical_passage)},跳躍點數量:{len(self.action_points)}")
         except Exception as e:
             logging.error(f"載入地圖失敗{e}")
 
@@ -145,10 +145,10 @@ class AutoControl:
 
         return passage
     
-    def _find_jump_points(self):
+    def _find_action_points(self):
         '''
         功能:
-            解析路徑設定，拆出單點跳躍點(JumpLeft / JumpRight)。
+            解析各個action point ，放進容器內
 
         '''
         # 對動作做方向映射
@@ -441,11 +441,11 @@ class AutoControl:
         '''
 
         px, py = self.mini_player_loc # 人物座標
-        for index, point in enumerate(self.jump_points):
+        for index, point in enumerate(self.action_points):
             jx, jy = point["loc"]
 
             if abs(jx - px) <= 2.5 and abs(jy - py) <= 2:  # 遊戲有不可控的像素誤差
-                direction = self.jump_points[index]["direction"]
+                direction = self.action_points[index]["direction"]
                 print(f"跳躍點方向:{direction}")
                 if direction == "NONE":
                     return self._pack_action("JUMP", direction=direction)
@@ -479,17 +479,17 @@ class AutoControl:
             判斷玩家目前座標是否已經落在某個跳躍點的抵達容忍範圍內
         要求:
             self.mini_player_loc
-            self.jump_points
+            self.action_points
         return:
             跳躍點的index | None
         '''
-        if not self.mini_player_loc or not self.jump_points:
+        if not self.mini_player_loc or not self.action_points:
             return None
 
         px, py = self.mini_player_loc
         threshold = self.ACTION_POINT_RANGE  # <== 容忍範圍，還要抓合適的參數
 
-        for index, point in enumerate(self.jump_points):
+        for index, point in enumerate(self.action_points):
             jx, jy = point["loc"]
             if abs(px - jx) <= threshold and abs(py - jy) <= threshold:
                 return index
@@ -506,14 +506,14 @@ class AutoControl:
         return:
             最近跳躍點的index | None (超出搜尋範圍或沒有跳躍點時回傳None)
         '''
-        if not self.mini_player_loc or not self.jump_points:
+        if not self.mini_player_loc or not self.action_points:
             return None
 
         px, py = self.mini_player_loc
         nearest_index = None
         nearest_score = float('inf')
 
-        for index, point in enumerate(self.jump_points):
+        for index, point in enumerate(self.action_points):
             jx, jy = point["loc"]
 
             dx = px  - jx
@@ -528,7 +528,7 @@ class AutoControl:
 
         # 太遠的跳躍點不採用，避免人物跑去很遠的地方硬跳
         if nearest_index is not None:
-            jx, jy = self.jump_points[nearest_index]["loc"]
+            jx, jy = self.action_points[nearest_index]["loc"]
             actual_distance = ((px - jx) ** 2 + (py - jy) ** 2) ** 0.5
             if actual_distance <= self.JUMP_DISTANCE_THRESHOLD:
                 return nearest_index
@@ -553,7 +553,7 @@ class AutoControl:
 
         # (2) 主邏輯
         px, _ = self.mini_player_loc
-        jx, _ = self.jump_points[jump_index]["loc"]
+        jx, _ = self.action_points[jump_index]["loc"]
 
         if px < jx  :
             return self._pack_action("MOVE", direction="RIGHT")
@@ -570,7 +570,7 @@ class AutoControl:
         return:
             self._pack_action("JUMP_GRAB", direction="RIGHT" |"LEFT"|"DOWN"|"UP"|M_RIGHT|M_LEFT)
         '''
-        direction = self.jump_points[jump_index]["direction"]
+        direction = self.action_points[jump_index]["direction"]
         print(f"到達{jump_index}號跳躍點，執行 {direction} 方向跳躍")
         return self._pack_action("JUMP_GRAB", direction=direction)
 
@@ -594,11 +594,11 @@ class AutoControl:
 
         # 條件A:判斷人物是否站在跳躍點
         px, py = self.mini_player_loc # 人物座標
-        for index, point in enumerate(self.jump_points):
+        for index, point in enumerate(self.action_points):
             jx, jy = point["loc"]
 
             if abs(jx - px) <= 2.5 and abs(jy - py) <= 2:  # 遊戲有不可控的2像素誤差
-                direction = self.jump_points[index]["direction"]
+                direction = self.action_points[index]["direction"]
                 print(f"跳躍點方向:{direction}")
                 if direction == "NONE":
                     return self._pack_action("JUMP", direction=direction)
@@ -897,7 +897,7 @@ class AutoControl:
         return [
             {"label": "platform", "color": (193,255,193),   "boxes": [(p["t_l"], p["b_r"]) for p in self.platforms]},
             {"label": "vertical_passage", "color": (0,100,0), "boxes": [(v["t_l"], v["b_r"]) for v in self.vertical_passage]},
-            {"label": "jump", "color": (3,193,69), "circle": [j["loc"] for j in self.jump_points]}
+            {"label": "jump", "color": (3,193,69), "circle": [j["loc"] for j in self.action_points]}
         ]
     def _reset_state(self):
         '''
