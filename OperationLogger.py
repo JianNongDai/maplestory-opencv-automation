@@ -113,10 +113,9 @@ class OperationLogger:
             win32con.VK_F2: self._exit_app,
             win32con.VK_F4: self._walk_point,
             win32con.VK_F5: self._rope_point,
-            win32con.VK_F6: self._jump_to_right_point,
-            win32con.VK_F7: self._jump_to_left_point,
-            win32con.VK_F8: self._jump_down_point,
-            win32con.VK_F9: self._jump_up_point,
+            win32con.VK_F6: self._jump_point,
+            win32con.VK_F7: self._jump_down_point,
+            # win32con.VK_F8: self._jump_down_point,
         }
         
         for vk, func in key_mappings.items():
@@ -291,7 +290,7 @@ class OperationLogger:
     #=================
     def _walk_point(self):
         '''
-        移動點
+        平台移動點
         '''
 
         self.recored_data.append({"loc": list(self.player_loc), "action": "walk"})
@@ -307,6 +306,16 @@ class OperationLogger:
         self._show_last_item()
         self._show_recorded_data()
 
+    def _jump_point(self):
+        '''
+        @brief 單純跳
+        '''
+
+        self.recored_data.append({"loc": list(self.player_loc), "action": "Jump"})
+        self._show_last_item()
+        self._show_recorded_data()
+
+
     def _jump_down_point(self):
         '''
         跳下點
@@ -318,7 +327,7 @@ class OperationLogger:
 
     def _jump_up_point(self):
         '''
-        跳下點
+        向上跳
         '''
 
         self.recored_data.append({"loc": list(self.player_loc), "action": "JumpUp"})
@@ -350,12 +359,10 @@ class OperationLogger:
         print("=" * 45)
         print(" [F1] 儲存行為座標至 YAML")
         print(" [F2] 離開程式")
-        print(" [F4] 紀錄點位：Walk (移動點)")
-        print(" [F5] 紀錄點位：Rope (爬繩點)")
-        print(" [F6] 紀錄點位：JumpRight(向右跳)")
-        print(" [F7] 紀錄點位：JumpLeft(向左跳)")
-        print(" [F8] 紀錄點位：JumpDow(向下跳)")
-        print(" [F9] 紀錄點位：JumpUp(向上跳)")
+        print(" [F4] 動作點：Walk (移動點)")
+        print(" [F5] 動作點：Rope (爬繩點)")
+        print(" [F6] 動作點：Jump(單純跳躍)")
+
         print("=" * 45)
 
 
