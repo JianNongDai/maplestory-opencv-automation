@@ -600,7 +600,7 @@ class AutoControl:
 
             if abs(jx - px) <= 2.5 and abs(jy - py) <= 2:  # 遊戲有不可控的2像素誤差
                 direction = self.action_points[index]["direction"]
-                print("測試",direction)
+
                 if direction == "NONE":
                     return self._pack_action("JUMP", direction=direction)
                 elif direction == "M2LEFT" or direction == "M2RIGHT":
@@ -730,13 +730,14 @@ class AutoControl:
         #容忍值
         TOP_TOLERANCE = 5
         BOTTOM_TOLERANCE = 5
+        TIME_THRESHOLD = 0.3
         # -- 決策邏輯
         # -- 往上        
         if self.current_verti_target == "UP":
             # 下面兩個if，目的為判斷有沒有成功到頂(底)部
             if self._is_loc_y_change(): # <= - 有變動則重置
                 self._verti_movement_timer = current_time
-            if  current_time - self._verti_movement_timer > 1:
+            if  current_time - self._verti_movement_timer > TIME_THRESHOLD:
                 '''
                 給偵測餘裕
                 超過1秒，判斷人物是否Y軸移動，沒移動代表在底部
@@ -764,7 +765,7 @@ class AutoControl:
         
         # -- 往下
         if self.current_verti_target == "DOWN":
-            if  current_time - self._verti_movement_timer > 1:
+            if  current_time - self._verti_movement_timer > TIME_THRESHOLD:
                 '''
                 條件A:
                 給偵測餘裕
