@@ -155,10 +155,10 @@ class AutoControl:
         JUMP_ACTION_DIRECTION = {
             "Jump": "NONE",
             "JumpDown":"DOWN",
-            "JumpLeft": "LEFT",
-            "JumpRight": "RIGHT",
             "M_LEFT": "M2LEFT",
             "M_RIGHT": "M2RIGHT",
+            # "JumpLeft": "LEFT",
+            # "JumpRight": "RIGHT",
         }
 
         jump_points = []
@@ -600,7 +600,7 @@ class AutoControl:
 
             if abs(jx - px) <= 2.5 and abs(jy - py) <= 2:  # 遊戲有不可控的2像素誤差
                 direction = self.action_points[index]["direction"]
-                print(f"跳躍點方向:{direction}")
+
                 if direction == "NONE":
                     return self._pack_action("JUMP", direction=direction)
                 elif direction == "M2LEFT" or direction == "M2RIGHT":

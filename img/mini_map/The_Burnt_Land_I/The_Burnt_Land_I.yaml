@@ -39,3 +39,7 @@
   loc:
   - 159
   - 83
+- action: M_RIGHT
+  loc:
+  - 22
+  - 52
