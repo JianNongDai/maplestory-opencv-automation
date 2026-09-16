@@ -115,6 +115,8 @@ class OperationLogger:
             win32con.VK_F5: self._rope_point,
             win32con.VK_F6: self._jump_point,
             win32con.VK_F7: self._jump_down_point,
+            0xBD: self.small_move_to_left,
+            0xBB: self.small_move_to_right,
             # win32con.VK_F8: self._jump_down_point,
         }
         
@@ -318,7 +320,7 @@ class OperationLogger:
 
     def _jump_down_point(self):
         '''
-        跳下點
+        @brief 向下方跳
         '''
 
         self.recored_data.append({"loc": list(self.player_loc), "action": "JumpDown"})
@@ -349,6 +351,23 @@ class OperationLogger:
         self.recored_data.append({"loc": list(self.player_loc), "action": "JumpLeft"})
         self._show_last_item()
         self._show_recorded_data()
+
+    def small_move_to_right(self):
+        '''
+        @brief 小位移向右
+        '''
+        self.recored_data.append({"loc": list(self.player_loc), "action": "M_RIGHT"})
+        self._show_last_item()
+        self._show_recorded_data()
+
+    def small_move_to_left(self):
+        '''
+        @brief 小位移向左
+        '''
+        self.recored_data.append({"loc": list(self.player_loc), "action": "M_LEFT"})
+        self._show_last_item()
+        self._show_recorded_data()
+
     #=================
     # 文書操作
     #=================
