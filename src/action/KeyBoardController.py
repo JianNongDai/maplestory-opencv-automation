@@ -190,7 +190,7 @@ class KeyBoard:
                 self._status_jump = False
 
     def enable_jump(self,duration=0.1):
-        '''跳躍動作'''
+        '''動作: 單純跳躍'''
         with self._jump_lock:
             if self._status_jump:
                 return
@@ -455,7 +455,7 @@ class KeyBoard:
                 self._status_jump_down = False
 
     def jump_down(self, duration=0.1, delay=0.03):
-        '''向下跳对外接口'''
+        '''動作: 向下跳'''
         with self._jump_down_lock:
             if self._status_jump_down:
                 return

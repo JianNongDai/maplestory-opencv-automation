@@ -70,19 +70,19 @@ class ActionHandler:
                 
 
 
-        # 判定"攀爬中"狀態
-
+        # ====
+        # "攀爬"的狀態命令
+        # ====
         elif self.current_state == "CLIMB" :
-            # self.keyboard.stop_move()
             direction = self.current_info.get("direction")
-            # distance = self.current_info.get("distance")
             if direction == "UP":
                 self.keyboard.climb_up()
             elif direction == "DOWN":
                 self.keyboard.climb_down()
 
-            
-
+        # ====
+        # "持續位移"的狀態命令
+        # ====
         elif self.current_state == "MOVE" and self.current_info:
             direction = self.current_info.get("direction")
 
@@ -93,7 +93,9 @@ class ActionHandler:
             self.keyboard.enable_pick_up()
 
 
-        # 目前剩給隨機移動做簡單跳躍
+        # ====
+        # "跳躍"的狀態命令
+        # ====
         elif self.current_state == "JUMP":   
             direction = self.current_info.get("direction")
             if direction == "LEFT":
@@ -105,7 +107,12 @@ class ActionHandler:
             elif direction =="NONE":  # <- 給平台移動時遇到障礙物的跳躍
                 self.keyboard.enable_jump()
 
-        # 小程度的位移指令
+            elif direction == "DOWN": # <- 向下跳
+                self.keyboard.jump_down()
+
+        # ====
+        # "短距離位移"的狀態命令
+        # ====
         elif self.current_state == "SMALL_MOVE":
             direction = self.current_info.get("direction")
             if direction == "M2LEFT":
@@ -113,6 +120,10 @@ class ActionHandler:
             elif direction == "M2RIGHT":
                 self.keyboard.move_right_to_jump()# <- 跳抓狀態的短距離右側移動
 
+
+        # ====
+        # "跳爬+跳抓"的狀態命令
+        # ====
         elif self.current_state == "JUMP_GRAB":
             direction = self.current_info.get("direction")
             self.keyboard.stop_move()
@@ -122,14 +133,10 @@ class ActionHandler:
             elif direction == "RIGHT": # <- 向右跳抓
 
                 self.keyboard.jump_right_grab()
-            elif direction == "DOWN": # <- 向下跳
-                self.keyboard.jump_down()
+
             elif direction == "UP": # <- 向上跳抓
                 self.keyboard.jump_up_grab()
-            elif direction == "M_LEFT": # <- 跳抓狀態的短距離左側移動
-                self.keyboard.move_left_to_jump()
-            elif direction == "M_RIGHT": # <- 跳抓狀態的短距離右側移動
-                self.keyboard.move_right_to_jump()
+
 
 
 

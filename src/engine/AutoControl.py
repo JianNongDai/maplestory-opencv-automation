@@ -153,13 +153,12 @@ class AutoControl:
         '''
         # 對動作做方向映射
         JUMP_ACTION_DIRECTION = {
+            "Jump": "NONE",
+            "JumpDown":"DOWN",
             "JumpLeft": "LEFT",
             "JumpRight": "RIGHT",
-            "JumpDown":"DOWN",
-            "JumpUp":"UP",
             "M_LEFT": "M2LEFT",
             "M_RIGHT": "M2RIGHT",
-            "Jump": "NONE"
         }
 
         jump_points = []
@@ -171,7 +170,7 @@ class AutoControl:
             x, y = item["loc"]
             jump_points.append({"loc": (x, y), "direction": direction})
         print(f"跳躍點數量：{len(jump_points)}")
-        print("跳躍點",jump_points)
+        print("跳躍點清單",jump_points)
         return jump_points
     #=================
     # 主要邏輯
@@ -441,16 +440,15 @@ class AutoControl:
         '''
 
         px, py = self.mini_player_loc # 人物座標
+
+        # 判斷: 移動到繩索區可能遇到地形卡住，所以這裡寫了跳躍點的地形判斷
         for index, point in enumerate(self.action_points):
             jx, jy = point["loc"]
-
             if abs(jx - px) <= 2.5 and abs(jy - py) <= 2:  # 遊戲有不可控的像素誤差
                 direction = self.action_points[index]["direction"]
-                print(f"跳躍點方向:{direction}")
                 if direction == "NONE":
                     return self._pack_action("JUMP", direction=direction)
-                elif direction == "M2LEFT" or direction == "M2RIGHT":
-                    return self._pack_action("SMALL_MOVE", direction=direction)
+
 
 
         my_verti_passage = self._check_vertical_passage()
@@ -470,6 +468,7 @@ class AutoControl:
             print(f"玩家座標:{px}；走至座標:{self.vertical_passage[verti_passage_index]['t_l'][0]}")
             return self._pack_action("MOVE", direction="LEFT")
     #=================
+    # 這塊打算廢棄
     # 邏輯塊: 單點跳躍相關(JumpLeft/JumpRight)
     #=================
 
@@ -591,8 +590,10 @@ class AutoControl:
         # 依賴檢查：無平台資訊就拋棄此幀
         # 若有平台，則更新最新平台(盡量別用快取)
         current_plat_index = self._check_current_platform()
-
+        # ==========================
         # 條件A:判斷人物是否站在跳躍點
+        # 目的: 偵測所有種類的跳躍點
+        # ==========================
         px, py = self.mini_player_loc # 人物座標
         for index, point in enumerate(self.action_points):
             jx, jy = point["loc"]
@@ -604,7 +605,10 @@ class AutoControl:
                     return self._pack_action("JUMP", direction=direction)
                 elif direction == "M2LEFT" or direction == "M2RIGHT":
                     return self._pack_action("SMALL_MOVE", direction=direction)
-            
+                elif direction == "DOWN":
+                    return self._pack_action("JUMP", direction=direction)
+
+                
         # 條件B: 人物不再平台
         if current_plat_index is None :
             self.current_platform =  None 
