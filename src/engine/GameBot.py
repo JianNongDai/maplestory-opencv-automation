@@ -70,10 +70,13 @@ class GameBot:
         self.role_BBOX:BBox = None
         self.roi_BBOX:BBox = None
         self.role_score = 0  #角色置信度
-        self.last_loc = None  # 記住上一次找到的位置
         self.player_center_loc = None
         self.current_mobs_result =None
 
+
+        self.prev_pcl = None  # 上一frame的人物位置
+        self.prev_roi_BBOX = None # 上一frame的BBOX
+        self.loss_tracking_count = 0 # 紀錄遺失追蹤次數
         #---健康參數
         self.player_hp = None
         self.player_mp = None
@@ -389,26 +392,43 @@ class GameBot:
                 #全圖掃
                 player_loc = self._locate_player_globally()
 
-                #防止max_loc沒東西時report
+                #防呆
                 if player_loc is not None:
                     self.player_center_loc = cent_coord(player_loc,self.my_character_template_size)
+                    self.loss_tracking_count = 0  # 找到就歸零
                 else:
                     pass
             else:
                 #進入ROI掃
                 fund_result = self._locate_player_locally()
                         # ROI掃不到時，清空座標與ROI框，讓下一輪回到全局掃描重新定位
-                if not fund_result:
-                    self.player_center_loc = None
-                    self.roi_BBOX = None
-                    
+                
+                if fund_result:
+                    self.loss_tracking_count = 0  # 找到就歸零
+
+                else:
+                    predicted = self._predict_player_position() # <- 嘗試追蹤5次
+                    if not predicted:
+                        # 預測失敗（超過最大容忍幀數），徹底清空
+                        self.player_center_loc = None
+                        self.roi_BBOX = None
+
+            # 計算人物的角色bbox，單純用於畫框，不太重要
             if self.player_center_loc is not None:
                 # 角色bbox座標  tuple[tuple[int,int],tuple[int,int]
                 self.role_BBOX = get_bbox_from_center(self.player_center_loc,self.my_character_template_size)
+
+            
             else:
                 # 沒抓到則初始化
                 self.role_BBOX = None
-                pass
+
+            #========
+            # 更新每輪資料
+            #=======
+            if self.player_center_loc is not None:
+                self.prev_pcl = self.player_center_loc
+                self.prev_role_BBOX = self.role_BBOX
         except Exception as e:
             logging.error(e)
 
@@ -416,6 +436,8 @@ class GameBot:
         '''
         功能:
             全圖掃描
+        return: 
+            匹配目標的原點
         '''
         try:
             current_frame = cv2.cvtColor(self.frame_bgr, cv2.COLOR_BGR2GRAY)
@@ -439,6 +461,13 @@ class GameBot:
         '''
         功能:
             ROI局部掃描
+
+        return:布林值
+            True:找到
+            False:未找到
+        備註:
+            這裡直接更新 self.player_center_loc、self.role_BBOX 
+
         '''
         try:
 
@@ -476,6 +505,24 @@ class GameBot:
         except Exception as e:
             logging.error(e)
 
+    def _predict_player_position(self):
+        '''
+        目的:
+            用上一輪位置，處理短暫遺失，與追蹤
+        '''
+        MAX_LOST_FRAMES = 15
+
+        if self.prev_pcl is not None and self.loss_tracking_count < MAX_LOST_FRAMES:
+            self.player_center_loc = self.prev_pcl
+            if self.prev_roi_BBOX is not None:
+                self.roi_BBOX = self.prev_roi_BBOX
+            self.loss_tracking_count += 1
+            return True
+        else:
+            # 超過容忍次數，計數器歸零
+            self.loss_tracking_count = 0
+            return False
+        
     #=================
     # 偵測器:怪物
     #=================
