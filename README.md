@@ -1,5 +1,5 @@
-## For 楓之谷:經典版
----
+## Live Preview
+
 <table>
   <tr>
     <td align="center">
@@ -14,7 +14,7 @@
 >**Disclaimer**
 >
 > 本專案僅供個人學習 Python 影像辨識與自動化測試交流使用<br>請在合乎遊戲條例下使用。
----
+
 ---
 
 ##  Current Features (WIP)
