@@ -90,6 +90,7 @@ class ActionHandler:
                 self.keyboard.enable_move_left()
             elif direction == "RIGHT":
                 self.keyboard.enable_move_right()
+                
             self.keyboard.enable_pick_up()
 
 
