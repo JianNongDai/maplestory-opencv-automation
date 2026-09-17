@@ -89,7 +89,7 @@ class GameBot:
 
         #---視窗狀態
         self.bot_enabled = True
-        is_game_window_foreground = True  # <- 記錄「上一輪迴圈」遊戲視窗是否為前景視窗
+        self.is_game_window_foreground_last_frame = True  # <- 記錄「上一輪迴圈」遊戲視窗是否為前景視窗
 
         #---熟鍵設定
         self.hotkey_manager = hk.HotkeyManager()
@@ -213,7 +213,8 @@ class GameBot:
 
     def _is_game_window_foreground(self):
         '''
-        檢查遊戲視窗目前是否為前景視窗
+        功能:檢查遊戲視窗目前是否為前景視窗
+        return: bool
         '''
         return win32gui.GetForegroundWindow() == self.hwnd
 
@@ -302,7 +303,8 @@ class GameBot:
                 if not self._is_window_valid():
                     time.sleep(1)
                     continue
-                
+
+                # 前景視窗判斷
                 is_game_window_foreground = self._is_game_window_foreground() # 判斷本輪遊戲視窗是否在前景
                 if not is_game_window_foreground and self.is_game_window_foreground_last_frame: 
                     self.keyboard.release_all()
