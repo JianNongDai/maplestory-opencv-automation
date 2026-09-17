@@ -1,7 +1,7 @@
 - action: walk
   loc:
   - 3
-  - 90
+  - 100
 - action: walk
   loc:
   - 188
@@ -20,7 +20,7 @@
   - 53
 - action: walk
   loc:
-  - 79
+  - 90
   - 51
 
 - action: Jump
@@ -39,7 +39,3 @@
   loc:
   - 159
   - 83
-- action: M_RIGHT
-  loc:
-  - 22
-  - 52
